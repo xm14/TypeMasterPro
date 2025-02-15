@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeMaster Pro - Advanced Typing Practice & Speed Test</title>
+    <meta name="description" content="Boost typing speed & accuracy with TypeMaster Pro! Practice 50+ leveled texts, track WPM/accuracy stats, master touch typing. Ideal for coders, students, professionals. Start free now!">
+    <style>
+        #app {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #text {
+            font-size: 24px;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+
+        #text span {
+            padding: 2px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        #text span.correct {
+            background-color: #90EE90;
+        }
+
+        #text span.incorrect {
+            background-color: #FFB6C1;
+        }
+
+        #text span.active {
+            border-bottom: 2px solid #000;
+        }
+
+        #input {
+            width: 80%;
+            padding: 10px;
+            font-size: 18px;
+            margin: 20px 0;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #timer {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+
+        #stats {
+            font-size: 18px;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+    <body>
+        <div id="app">
+            <h1>TypeMaster Pro for Coders ⌨️</h1>
+            <div id="text"></div>
+            <h2 hidden aria-hidden="true">Free Online Typing Tutor</h2>
+            <p hidden aria-hidden="true">Best keyboard practice app for coding speed tests, WPM challenges, and touch typing improvement. Learn typing techniques with programming-specific exercises.</p>
+            <input type="text" id="input" placeholder="Start typing here...">
+            <div id="timer">Time: 0s</div>
+            <button id="restart">Restart Test</button>
+            <div id="stats"></div>
+        </div>
+
+    <script>
+        const texts = [
+            // Level 1: Basic sentences (15)
+            "The quick fox jumps.",
+            "Practice makes perfect.",
+            "Type with both hands.",
+            "Start slow, aim fast.",
+            "Focus on accuracy first.",
+            "Keep your posture straight.",
+            "Home row fundamentals.",
+            "ASDF JKL; practice.",
+            "Quick brown dog.",
+            "Smooth typing rhythm.",
+            "Hit each key firmly.",
+            "Develop muscle memory.",
+            "Daily practice matters.",
+            "Eyes on the screen.",
+            "Fingers curved naturally.",
+
+            // Level 2: Intermediate (15)
+            "The 5 boxing wizards jump quickly!",
+            "99 little bugs in the code...",
+            "JavaScript: console.log('Hello World!');",
+            "const user = {name: 'John', age: 25};",
+            "Git commit -m 'Initial project version'",
+            "#Python: print(f'Formatted {string}')",
+            "npm install --save-dev package@1.0.0",
+            "SELECT * FROM users WHERE id = 123;",
+            "404 Error: Page not found!",
+            "https://www.typingtest.com/signup",
+            "Password1! needs 8+ characters.",
+            "MacOS: Cmd+Shift+4 for screenshots",
+            "Email: contact@companymail.com",
+            "JSON: {'key': 'value', 'num': 42}",
+            "200 OK | 301 Redirect | 500 Error",
+
+            // Level 3: Advanced (15)
+            "The @keyframes rule in CSS animates elements!",
+            "RegEx: ^(?=.*[A-Z])(?=.*\\d).{8,}$",
+            "document.querySelector('.class').addEventListener();",
+            "def fibonacci(n): return n if n <= 1 else...",
+            "chmod 755: User=rwx, Group=rx, Others=rx",
+            "docker-compose.yml: version: '3.8' services:",
+            "Math.random() * (max - min) + min; // JS",
+            "<input type='email' required pattern='.+@.+\..+'>",
+            "sudo apt-get update && sudo apt-get upgrade",
+            "process.env.NODE_ENV === 'production' ? 'prod' : 'dev'",
+            "Array.prototype.map((item, index) => {...})",
+            "strftime('%Y-%m-%d %H:%M:%S') // Python datetime",
+            "37.5°C | 98.6°F - Medical typing practice",
+            "curl -X POST -H 'Content-Type: application/json' ...",
+            "ERROR: SyntaxError: Unexpected token '{' at line 42",
+
+            // Level 4: Expert (5)
+            "The NIH's pH-balanced solution (50mL @ 25°C) costs $299.99!",
+            "Kernel panic: ACPI BIOS Error (BUG): Could not resolve symbol [\\_SB.PCI0]",
+            "λ-calculus: (λx.xx)(λy.yy) → β-reduction → (yy)[y := λy.yy]",
+            "Quantum state: |ψ⟩ = α|0⟩ + β|1⟩ where |α|² + |β|² = 1",
+            "M̷̕͝ö̸́͝d̸͊̈́e̴̅̐ŕ̴̋n̵̉͊ ̵̇̚f̴͐̐o̷̅͠n̶̎̋t̶̓̀ ̴̓̐s̴̅́t̴͛͝y̷̓̉l̷̏̓i̸̽̇n̴̈́͌g̷̊̕ ̸̈́̈́c̴̑̋ḧ̶́̋ȁ̷͊l̸͝͝l̵͝͝ë̶́͝n̵̔̓g̶͌̈́ë̴́̕"
+        ];
+
+        let currentText = '';
+        let timerInterval = null;
+        let startTime = null;
+        let isTimerRunning = false;
+
+        function initText() {
+            currentText = texts[Math.floor(Math.random() * texts.length)];
+            const textDiv = document.getElementById('text');
+            textDiv.innerHTML = currentText.split('').map(c => `<span>${c}</span>`).join('');
+            document.getElementById('input').maxLength = currentText.length;
+        }
+
+        function updateTextDisplay(input) {
+            const spans = document.querySelectorAll('#text span');
+            let allCorrect = true;
+            
+            for (let i = 0; i < spans.length; i++) {
+                if (i < input.length) {
+                    if (input[i] === currentText[i]) {
+                        spans[i].classList.add('correct');
+                        spans[i].classList.remove('incorrect');
+                    } else {
+                        spans[i].classList.add('incorrect');
+                        spans[i].classList.remove('correct');
+                        allCorrect = false;
+                    }
+                } else {
+                    spans[i].classList.remove('correct', 'incorrect');
+                }
+                spans[i].classList.remove('active');
+            }
+
+            if (input.length < currentText.length) {
+                spans[input.length].classList.add('active');
+            }
+
+            if (allCorrect && input.length === currentText.length) {
+                finishTest();
+            }
+        }
+
+        function startTimer() {
+            if (!isTimerRunning) {
+                isTimerRunning = true;
+                startTime = Date.now();
+                timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    document.getElementById('timer').textContent = `Время: ${elapsed}s`;
+                }, 1000);
+            }
+        }
+
+        function finishTest() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            const elapsed = (Date.now() - startTime) / 1000;
+            const minutes = elapsed / 60;
+            const input = document.getElementById('input').value;
+            
+            let correctCount = 0;
+            for (let i = 0; i < input.length; i++) {
+                if (input[i] === currentText[i]) correctCount++;
+            }
+
+            const accuracy = ((correctCount / currentText.length) * 100).toFixed(1);
+            const cpm = Math.round(correctCount / minutes);
+            const wpm = Math.round(cpm / 5);
+
+            document.getElementById('stats').innerHTML = `
+                <p>Скорость: ${cpm} зн./мин (${wpm} слов/мин)</p>
+                <p>Точность: ${accuracy}%</p>
+            `;
+        }
+
+        document.getElementById('input').addEventListener('input', (e) => {
+            const input = e.target.value;
+            if (input.length > 0 && !isTimerRunning) {
+                startTimer();
+            }
+            updateTextDisplay(input);
+        });
+
+        document.getElementById('restart').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            document.getElementById('input').value = '';
+            document.getElementById('timer').textContent = 'Время: 0s';
+            document.getElementById('stats').innerHTML = '';
+            initText();
+            updateTextDisplay('');
+        });
+
+        // Инициализация при загрузке
+        initText();
+        updateTextDisplay('');
+    </script>
+</body>
+</html>
