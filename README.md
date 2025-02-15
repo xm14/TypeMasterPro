@@ -80,4 +80,4 @@ Our typing tutor uses spaced repetition algorithms combined with:
 
 ---
 
-**Developer:** [xm14](https://github.com/xm14)
+**Developer:** [xm14](https://github.com/xm14) | [telegram](https://t.me/marat_ruby)
