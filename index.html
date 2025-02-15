@@ -218,8 +218,8 @@
             const wpm = Math.round(cpm / 5);
 
             document.getElementById('stats').innerHTML = `
-                <p>Скорость: ${cpm} зн./мин (${wpm} слов/мин)</p>
-                <p>Точность: ${accuracy}%</p>
+                <p>Speed: ${cpm} chars/min (${wpm} words/min)</p>
+                <p>Accuracy: ${accuracy}%</p>
             `;
         }
 
@@ -241,7 +241,6 @@
             updateTextDisplay('');
         });
 
-        // Инициализация при загрузке
         initText();
         updateTextDisplay('');
     </script>
